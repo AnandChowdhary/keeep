@@ -88,9 +88,9 @@ void shuffleRandom (int type, char original[]) {
     char t1[] = "!@#$%^&*()_+=ab1cd2ef3-[]{}\|';:<>,.?/~` gh4ij5kl6mn7op8qr9st0uvwxyzQWERTYUIOPLKJHGFDSAZXCVBNM";
     char t2[] = "bcdefghijklmnopqrstuvwxyza1234567890 !@#$%^&*()_+=-[]{}\|';ABCDEFGHIJKLMNOPQRSTUVWXYZ:<>,.?/~`";
     if (type == 0) {
-        rotateString(t1, index);
+        //rotateString(t1, index);
     } else if (type == 1) {
-        antirotateString(t1, index);
+        //antirotateString(t1, index);
     }
     strcpy(l, t1);
     strcpy(m, t2);
@@ -443,7 +443,6 @@ void launchEncrypter() {
         goto encryptChecker;
     }
     writeLine ("Encoded string: "); puts (encode (userEntered));
-    writeLine ("Decoded string: "); puts (decode (userEntered));
     leaveLine();
     getch();
 }
@@ -485,7 +484,7 @@ int main(void) {
 
     user A; int u;
 
-    home:   //designImplement();
+    home:   designImplement();
             writeText("1.   Log in to your Keeep");
             writeText("2.   Sign up for a new Keeep");
             writeText("3.   String encryptor (experimental)");
