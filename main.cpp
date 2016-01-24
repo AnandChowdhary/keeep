@@ -35,9 +35,17 @@ class encryptedRecord {
         char* returnName() {
             return recordName;
         }
+        char* returnContent() {
+            return recordContent;
+        }
         encryptedRecord() {
             strcpy(computerName, returnComputerName());
             strcpy(createdAt, returnCurrentTime());
+        }
+        void addRecord(int cat, char rname[], char rcont[]) {
+            category = cat;
+            strcpy(recordName, rname);
+            strcpy(recordContent, rcont);
         }
         void insertRecord() {
             cout << "Choose a category:     1. Password" << endl;
@@ -85,10 +93,12 @@ class encryptedRecord {
                     cout << "Card number: " << recordContent << endl;
                     cout << "CVV: " << recordContentOther << endl;
                     break;
-                default:
+                case 3:
                     cout << "Category: Other" << endl;
-                    cout << "Content: " << recordName << endl;
-                    cout << "Code: " << recordContent << endl;
+                    cout << "Record Name: " << recordName << endl;
+                    cout << "Password: " << recordContent << endl;
+                    break;
+                default:
                     break;
             }
         }
@@ -99,15 +109,84 @@ class user {
     char username[255];
     char userName[255];
     public:
+        void authenticate(char u[]) {
+            strcpy(username, u);
+        }
         char* returnName() {
             return userName;
         }
         user() {
             sudo = 0;
         }
+        void signup() {
+            char signup_username[255];
+            char signup_password[255];
+            cout << "Enter your username: ";
+            cin >> signup_username;
+            char tempName[255];
+            strcpy(tempName, signup_username);
+            strcat(tempName, ".dat");
+            ifstream f1;
+            f1.open(tempName, ios::in);
+            if (!f1.fail()) {
+                cout << "\nAn account with that username already exists.\n\n";
+                signup();
+            } else {
+                cout << "Enter a password: ";
+                cin >> signup_password;
+                char firstAccount[255];
+                strcpy(firstAccount, signup_username);
+                strcat(firstAccount, ".dat");
+                ofstream f2;
+                f2.open(firstAccount, ios::binary|ios::out);
+                encryptedRecord A;
+                A.addRecord(0, "Keeep", signup_password);
+                f2.write((char*)&A, sizeof(A));
+                cout << "Account created successfully.";
+                authenticate(signup_username);
+            }
+        }
         void login() {
+            char login_username[255];
+            char login_password[255];
             cout << "Username: ";
-            cin >> username;
+            cin >> login_username;
+            char tempName[255];
+            strcpy(tempName, login_username);
+            strcat(tempName, ".dat");
+            ifstream f1;
+            f1.open(tempName, ios::in);
+            if (f1.fail()) {
+                cout << "Username not found.\n\n";
+                login();
+            } else {
+                cout << "Password: ";
+                cin >> login_password;
+                ifstream f1;
+                int authenticated = 0;
+                char fileName[259];
+                strcpy(fileName, login_username);
+                strcat(fileName, ".dat");
+                f1.open(fileName, ios::binary);
+                encryptedRecord B;
+                while (1) {
+                    f1.read((char*)&B, sizeof(B));
+                    if (f1.eof())
+                        break;
+                    if (strcmpi(B.returnName(), "Keeep") == 0) {
+                        if (strcmpi(B.returnContent(), login_password) == 0) {
+                            authenticated++;
+                            break;
+                        }
+                    }
+                }
+                if (authenticated == 0) {
+                    cout << "\n\nIncorrect password.\n\n";
+                    login();
+                } else {
+                    authenticate(login_username);
+                }
+            }
         }
         void addContent() {
             ofstream f1;
@@ -120,7 +199,34 @@ class user {
             f1.write((char*)&A, sizeof(A));
             cout << "Record added successfully.";
         }
+        void findParticular() {
+            int p; cin >> p;
+            ifstream f1;
+            char fileName[259];
+            strcpy(fileName, username);
+            strcat(fileName, ".dat");
+            f1.open(fileName, ios::binary|ios::app);
+            encryptedRecord A;
+            int records = 0;
+            int found = 0;
+            while (1) {
+                f1.read((char*)&A, sizeof(A));
+                if (f1.eof())
+                    break;
+                if (++records == p + 1 && p != 0) {
+                    cout << endl;
+                    A.displayRecord();
+                    found++;
+                }
+            }
+            if (found == 0) {
+                cout << "No record found";
+            }
+            cout << "\nPress any key to continue.\n";
+            getch();
+        }
         void readContent() {
+            cout << username << endl << endl << endl;
             ifstream f1;
             char fileName[259];
             strcpy(fileName, username);
@@ -129,11 +235,17 @@ class user {
             encryptedRecord A;
             int records = 0;
             while (1) {
+                f1.read((char*)&A, sizeof(A));
                 if (f1.eof())
                     break;
-                f1.read((char*)&A, sizeof(A));
-                cout << ++records << ". " << A.returnName() << " *************\n";
+                if (strcmpi(A.returnName(), "Keeep") == 0) {
+                    ++records;
+                } else {
+                    cout << ++records - 1 << ". " << A.returnName() << " *************\n";
+                }
             }
+            cout << "\nA total of " << records - 1 << " record were found.\n\nEnter a record number to view details: ";
+            findParticular();
         }
 };
 
@@ -142,10 +254,13 @@ int main(void) {
     cout << "Hello world" << endl << endl;
 
     user A;
-    A.login();
 
-    potato: cout << "\n1 for add, 2 for display";
-    int n; cin >> n; cout << "\n\n";
+    cout << "1. Login\n2. Register\n\nChoice: ";
+    int u; cin >> u; cout << "\n";
+    u == 1 ? A.login() : A.signup();
+
+    potato: cout << "\n Press 1 to add new, 2 to view: ";
+    int n; cin >> n; cout << "\n";
     n == 1 ? A.addContent() : A.readContent();
 
     goto potato;
