@@ -9,6 +9,91 @@
 
 using namespace std;
 
+char engine (int engineCommand, char replacable) {
+    char replaced = replacable;
+    char l[] = "!@#$%^&*()_+=ab1cd2ef3-[]{}\|';:<>,.?/~` gh4ij5kl6mn7op8qr9st0uvwxyzQWERTYUIOPLKJHGFDSAZXCVBNM";
+    char m[] = "bcdefghijklmnopqrstuvwxyza1234567890 !@#$%^&*()_+=-[]{}\|';ABCDEFGHIJKLMNOPQRSTUVWXYZ:<>,.?/~`";
+    if (engineCommand == 0) {
+        for (int i = 0; i < strlen(l); i++) {
+            if (replacable == l[i]) {
+                replaced = m[i];
+            }
+        }
+    } else {
+        for (int i = 0; i < strlen(m); i++) {
+            if (replacable == m[i]) {
+                replaced = l[i];
+            }
+        }
+    }
+    return replaced;
+}
+
+char* divideString (char originalString[]) {
+    char newString[strlen (originalString)];
+    strcpy (newString, originalString);
+    return newString;
+}
+
+char* encode (char original[]) {
+    strcpy (original, divideString (original));
+    for (int i = 0; i < strlen(original); i++)
+        original[i] = engine (0, original[i]);
+    return original;
+}
+
+char* decode (char original[]) {
+    strcpy (original, divideString (original));
+    for (int i = 0; i < strlen(original); i++)
+        original[i] = engine (1, original[i]);
+    return original;
+}
+
+void designImplement() {
+    //clrscr();
+    system ("cls");
+    cout << "\n\n     Keeep\n\n\n";
+}
+
+void writeLine (char text[]) {
+    cout << "    |    " << endl << "    |    " << text << endl << "    |    >>  ";
+}
+
+void writeText (char text[]) {
+    cout << "    |    " << text << endl;
+}
+
+void leaveLine() {
+    cout << "    |    " << endl;
+}
+
+void message(char text[]) {
+    leaveLine();
+    writeText(text);
+    writeLine("Press any key to continue.");
+    getch();
+}
+
+void throwError (char text[]) {
+    leaveLine();
+    cout << "    |    ";
+    for (int i = 0; i < (strlen(text) + 12); i++)
+        cout << "_";
+    cout << endl;
+    cout << "    |    |";
+    for (int i = 0; i < (strlen(text) + 11); i++)
+        cout << " ";
+    cout << "|" << endl;
+    cout << "    |    |  ERROR: " << text << "  |" << endl;
+    cout << "    |    |";
+    for (int i = 0; i < (strlen(text) + 11); i++)
+        cout << "_";
+    cout << "|" << endl;
+    leaveLine();
+    writeLine("Press any key to continue.");
+    getch();
+}
+
 char* returnComputerName() { // [1]
     TCHAR computerName[MAX_COMPUTERNAME_LENGTH + 1];
     DWORD size = sizeof (computerName) / sizeof (computerName[0]);
@@ -48,55 +133,82 @@ class encryptedRecord {
             strcpy(recordContent, rcont);
         }
         void insertRecord() {
-            cout << "Choose a category:     1. Password" << endl;
-            cout << "                       2. Credit card number" << endl;
-            cout << "                       3. Other information" << endl;
+            writeText("Great! Let's encrypt and add a new record to your Keeep.");
+            writeText("What kind of a record are we adding?");
+            leaveLine();
+            writeText("1.   Password");
+            writeText("2.   Credit card number");
+            writeText("3.   Other information");
+            writeLine("Choose a category: ");
             cin >> category; char a[2];
+            designImplement();
             switch (category) {
                 case 1:
                     gets (a);
-                    cout << "Name of website/ app: ";
+                    writeText("We'll securely add your password to your Keeep now.");
+                    leaveLine();
+                    writeText("Enter the name of the website or app");
+                    writeLine("It can be anything like Facebook or Gmail:");
                     gets (recordName);
-                    cout << "Your password: ";
+                    writeText("Enter the URL of the website or app");
+                    writeLine("eg. www.facebook.com");
+                    gets (recordContentOther);
+                    writeLine("Enter your password:");
                     gets (recordContent);
                     break;
                 case 2:
                     gets (a);
-                    cout << "Name of your card (eg. HDFC MasterCard): ";
+                    writeText("We'll securely add your credit card to your Keeep now.");
+                    leaveLine();
+                    writeText("Enter a name for your card");
+                    writeLine("It can be anything like HDFC Mastercard or ICICI Visa:");
                     gets (recordName);
-                    cout << "Your card number: ";
+                    writeLine("Enter your card number:");
                     gets (recordContent);
-                    cout << "Your card CVV: ";
+                    leaveLine();
+                    writeText("Enter your card CVV");
+                    writeLine("It's that 3-digit code at the back:");
                     gets (recordContentOther);
                     break;
-                default:
+                case 3:
                     gets (a);
-                    cout << "Name of content (eg. Aadhar Number): ";
+                    writeText("We'll securely add your information to your Keeep now.");
+                    leaveLine();
+                    writeText("Enter a name for your record");
+                    writeLine("eg. Aadhar number or Social security code:");
                     gets (recordName);
-                    cout << "Your code: ";
+                    writeLine("Enter the code:");
                     gets (recordContent);
                     break;
+                default:
+                    break;
             }
+            encode(recordContent);
+            encode(recordContentOther);
         }
         void displayRecord() {
-            cout << "Created at: " << createdAt;
-            cout << "Computer name: " << computerName << endl;
+            designImplement();
+            cout << "    |    Created at: " << createdAt;
+            cout << "    |    Computer name: " << computerName << endl;
+            decode(recordContent);
+            decode(recordContentOther);
             switch (category) {
                 case 1:
-                    cout << "Category: Password" << endl;
-                    cout << "Website/ app: " << recordName << endl;
-                    cout << "Password: " << recordContent << endl;
+                    cout << "    |    Category: Password" << endl;
+                    cout << "    |    Website/ app: " << recordName << endl;
+                    cout << "    |    URL: " << recordContentOther << endl;
+                    cout << "    |    Password: " << recordContent << endl;
                     break;
                 case 2:
-                    cout << "Category: Credit card" << endl;
-                    cout << "Card name: " << recordName << endl;
-                    cout << "Card number: " << recordContent << endl;
-                    cout << "CVV: " << recordContentOther << endl;
+                    cout << "    |    Category: Credit card" << endl;
+                    cout << "    |    Card name: " << recordName << endl;
+                    cout << "    |    Card number: " << recordContent << endl;
+                    cout << "    |    CVV: " << recordContentOther << endl;
                     break;
                 case 3:
-                    cout << "Category: Other" << endl;
-                    cout << "Record Name: " << recordName << endl;
-                    cout << "Password: " << recordContent << endl;
+                    cout << "    |    Category: Other" << endl;
+                    cout << "    |    Record Name: " << recordName << endl;
+                    cout << "    |    Password: " << recordContent << endl;
                     break;
                 default:
                     break;
@@ -107,21 +219,21 @@ class encryptedRecord {
 class user {
     int sudo;
     char username[255];
-    char userName[255];
     public:
         void authenticate(char u[]) {
             strcpy(username, u);
         }
         char* returnName() {
-            return userName;
+            return username;
         }
         user() {
             sudo = 0;
         }
         void signup() {
+            designImplement();
             char signup_username[255];
             char signup_password[255];
-            cout << "Enter your username: ";
+            writeLine("Enter your username:");
             cin >> signup_username;
             char tempName[255];
             strcpy(tempName, signup_username);
@@ -129,10 +241,10 @@ class user {
             ifstream f1;
             f1.open(tempName, ios::in);
             if (!f1.fail()) {
-                cout << "\nAn account with that username already exists.\n\n";
+                throwError("An account with that username already exists");
                 signup();
             } else {
-                cout << "Enter a password: ";
+                writeLine("Enter a password:");
                 cin >> signup_password;
                 char firstAccount[255];
                 strcpy(firstAccount, signup_username);
@@ -142,14 +254,15 @@ class user {
                 encryptedRecord A;
                 A.addRecord(0, "Keeep", signup_password);
                 f2.write((char*)&A, sizeof(A));
-                cout << "Account created successfully.";
+                message("Account created successfully");
                 authenticate(signup_username);
             }
         }
         void login() {
+            designImplement();
             char login_username[255];
             char login_password[255];
-            cout << "Username: ";
+            writeLine("Enter your username: ");
             cin >> login_username;
             char tempName[255];
             strcpy(tempName, login_username);
@@ -157,10 +270,10 @@ class user {
             ifstream f1;
             f1.open(tempName, ios::in);
             if (f1.fail()) {
-                cout << "Username not found.\n\n";
+                throwError("Username not found");
                 login();
             } else {
-                cout << "Password: ";
+                writeLine("Password:");
                 cin >> login_password;
                 ifstream f1;
                 int authenticated = 0;
@@ -181,7 +294,7 @@ class user {
                     }
                 }
                 if (authenticated == 0) {
-                    cout << "\n\nIncorrect password.\n\n";
+                   throwError("Incorrect password");
                     login();
                 } else {
                     authenticate(login_username);
@@ -189,6 +302,7 @@ class user {
             }
         }
         void addContent() {
+            designImplement();
             ofstream f1;
             char fileName[259];
             strcpy(fileName, username);
@@ -197,9 +311,10 @@ class user {
             encryptedRecord A;
             A.insertRecord();
             f1.write((char*)&A, sizeof(A));
-            cout << "Record added successfully.";
+            message("Record added successfully");
         }
         void findParticular() {
+            writeLine("Enter a record number to view details:");
             int p; cin >> p;
             ifstream f1;
             char fileName[259];
@@ -214,19 +329,21 @@ class user {
                 if (f1.eof())
                     break;
                 if (++records == p + 1 && p != 0) {
-                    cout << endl;
+                    leaveLine();
                     A.displayRecord();
                     found++;
                 }
             }
             if (found == 0) {
-                cout << "No record found";
+                throwError("No record found");
             }
-            cout << "\nPress any key to continue.\n";
+            writeLine("Press any key to continue:");
             getch();
         }
         void readContent() {
-            cout << username << endl << endl << endl;
+            designImplement();
+            writeText("Here are your records: ");
+            leaveLine();
             ifstream f1;
             char fileName[259];
             strcpy(fileName, username);
@@ -241,29 +358,117 @@ class user {
                 if (strcmpi(A.returnName(), "Keeep") == 0) {
                     ++records;
                 } else {
-                    cout << ++records - 1 << ". " << A.returnName() << " *************\n";
+                    cout << "    |    " << ++records - 1 << ". " << A.returnName() << "\n";
                 }
             }
-            cout << "\nA total of " << records - 1 << " record were found.\n\nEnter a record number to view details: ";
+            leaveLine();
+            cout << "    |    " << "A total of " << records - 1 << " record were found.\n";
             findParticular();
         }
 };
 
+void launchEncrypter() {
+    designImplement();
+    writeText ("Keeep will now help you encrypt a string of data.  ");
+    writeText ("Please enter your string below, and we'll do the rest.");
+    encryptChecker: writeLine ("Enter a string: ");
+    char userEntered[255];
+    cin >> userEntered;
+    if (strlen(userEntered) <= 3) {
+        throwError ("Your string must be at least 4 characters in length");
+        goto encryptChecker;
+    }
+    writeLine ("Encoded string: "); puts (encode (userEntered));
+    leaveLine();
+    getch();
+}
+
+void launchRandomPassword() {
+    designImplement();
+    int charLength;
+    writeText ("Keeep will now generate a random password for you.");
+    writeLine ("Enter number of characters for password:");
+    cin >> charLength;
+    char l[] = "!@#$%^&*()_+=ab1cd2ef3-[]{}\|';:<>,.?/~` gh4ij5kl6mn7op8qr9st0uvwxyzQWERTYUIOPLKJHGFDSAZXCVBNM";
+    char randomPassword[charLength];
+    srand (time (NULL));
+    for (int i = 0; i < charLength; i++) {
+        randomPassword[i] = l[rand() % strlen(l)];
+    }
+    writeLine ("Generated password: "); puts (randomPassword);
+    leaveLine();
+    getch();
+}
+
 int main(void) {
 
-    cout << "Hello world" << endl << endl;
+    user A; int u;
 
-    user A;
+    home:   designImplement();
+            writeText("1.   Log in to your Keeep");
+            writeText("2.   Sign up for a new Keeep");
+            writeText("3.   String encryptor (experimental)");
+            writeText("4.   Generate a random password (experimental)");
+            writeText("99.  Exit saving changes");
+            leaveLine();
+            writeLine("Enter your choice: ");
+            cin >> u;
 
-    cout << "1. Login\n2. Register\n\nChoice: ";
-    int u; cin >> u; cout << "\n";
-    u == 1 ? A.login() : A.signup();
+    switch (u) {
+        case 1:
+            A.login();
+            goto dashboard;
+            break;
+        case 2:
+            A.signup();
+            goto dashboard;
+            break;
+        case 3:
+            launchEncrypter();
+            break;
+        case 4:
+            launchRandomPassword();
+            break;
+        case 99:
+            return 0;
+            break;
+        default:
+            cout << "Invalid choice. Press any key to try again.";
+            getch();
+            goto home;
+    }
 
-    potato: cout << "\n Press 1 to add new, 2 to view: ";
-    int n; cin >> n; cout << "\n";
-    n == 1 ? A.addContent() : A.readContent();
+    goto home;
 
-    goto potato;
+    int n;
+
+    dashboard: designImplement();
+               cout << "    |    " << endl << "    |    Hello, " << A.returnName() << "!\n";
+               leaveLine();
+               writeText("1.   Add a new record");
+               writeText("2.   View your records");
+               writeText("99.  Log out");
+               leaveLine();
+               writeLine("Enter your choice: ");
+               cin >> n;
+
+    switch (n) {
+        case 1:
+            A.addContent();
+            break;
+        case 2:
+            A.readContent();
+            break;
+        case 99:
+            goto home;
+            break;
+        default:
+            cout << "Invalid choice. Press any key to try again.";
+            getch();
+            goto dashboard;
+    }
+
+    goto dashboard;
 
     return 0;
 
