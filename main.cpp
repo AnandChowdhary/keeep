@@ -6,13 +6,15 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <ctime>
+#include <algorithm>
 
 using namespace std;
 
+char l[] = "----------------------------------------------------------------------------------------------";
+char m[] = "----------------------------------------------------------------------------------------------";
+
 char engine (int engineCommand, char replacable) {
     char replaced = replacable;
-    char l[] = "!@#$%^&*()_+=ab1cd2ef3-[]{}\|';:<>,.?/~` gh4ij5kl6mn7op8qr9st0uvwxyzQWERTYUIOPLKJHGFDSAZXCVBNM";
-    char m[] = "bcdefghijklmnopqrstuvwxyza1234567890 !@#$%^&*()_+=-[]{}\|';ABCDEFGHIJKLMNOPQRSTUVWXYZ:<>,.?/~`";
     if (engineCommand == 0) {
         for (int i = 0; i < strlen(l); i++) {
             if (replacable == l[i]) {
@@ -35,7 +37,67 @@ char* divideString (char originalString[]) {
     return newString;
 }
 
+void reverseString(char* str, int start, int end) { // [3]
+    int front = start;
+    int back = end;
+    while (front < back) {
+        /* This is how you can swap two variables without
+        using a temporary one. */
+        str[front] = str[front] ^ str[back];
+        str[back]  = str[front] ^ str[back];
+        str[front] = str[front] ^ str[back];
+        ++front;
+        --back;
+    }
+    return;
+}
+
+void rotateString(char* str, int k) {
+    if (!str || !*str)
+        return;
+    int len = strlen(str);
+    /* Rotating a string by it's length is string itself. */
+    k %= len;
+    reverseString(str, 0, len-1);
+    reverseString(str, 0, k-1);
+    reverseString(str, k, len-1);
+    return;
+}
+
+void antirotateString(char* str, int k) {
+    k = (strlen(str) - k);
+    if (!str || !*str)
+        return;
+    int len = strlen(str);
+    k %= len;
+    reverseString(str, 0, len-1);
+    reverseString(str, 0, k-1);
+    reverseString(str, k, len-1);
+    return;
+}
+
+int extractSeed (char originalString[]) {
+    int seed = 0;
+    for (int i = 0; i < strlen (originalString); i++)
+        seed += originalString[i];
+    return (seed % strlen (l));
+}
+
+void shuffleRandom (int type, char original[]) {
+    int index = extractSeed(original);
+    char t1[] = "!@#$%^&*()_+=ab1cd2ef3-[]{}\|';:<>,.?/~` gh4ij5kl6mn7op8qr9st0uvwxyzQWERTYUIOPLKJHGFDSAZXCVBNM";
+    char t2[] = "bcdefghijklmnopqrstuvwxyza1234567890 !@#$%^&*()_+=-[]{}\|';ABCDEFGHIJKLMNOPQRSTUVWXYZ:<>,.?/~`";
+    if (type == 0) {
+        rotateString(t1, index);
+    } else if (type == 1) {
+        antirotateString(t1, index);
+    }
+    strcpy(l, t1);
+    strcpy(m, t2);
+}
+
 char* encode (char original[]) {
+    shuffleRandom(0, original);
     strcpy (original, divideString (original));
     for (int i = 0; i < strlen(original); i++)
         original[i] = engine (0, original[i]);
@@ -43,6 +105,7 @@ char* encode (char original[]) {
 }
 
 char* decode (char original[]) {
+    shuffleRandom(1, original);
     strcpy (original, divideString (original));
     for (int i = 0; i < strlen(original); i++)
         original[i] = engine (1, original[i]);
@@ -150,6 +213,7 @@ class encryptedRecord {
                     writeText("Enter the name of the website or app");
                     writeLine("It can be anything like Facebook or Gmail:");
                     gets (recordName);
+                    leaveLine();
                     writeText("Enter the URL of the website or app");
                     writeLine("eg. www.facebook.com");
                     gets (recordContentOther);
@@ -372,13 +436,30 @@ void launchEncrypter() {
     writeText ("Keeep will now help you encrypt a string of data.  ");
     writeText ("Please enter your string below, and we'll do the rest.");
     encryptChecker: writeLine ("Enter a string: ");
-    char userEntered[255];
-    cin >> userEntered;
+    char userEntered[255]; char a[2]; gets(a);
+    gets(userEntered);
     if (strlen(userEntered) <= 3) {
         throwError ("Your string must be at least 4 characters in length");
         goto encryptChecker;
     }
     writeLine ("Encoded string: "); puts (encode (userEntered));
+    writeLine ("Decoded string: "); puts (decode (userEntered));
+    leaveLine();
+    getch();
+}
+
+void launchDecrypter() {
+    designImplement();
+    writeText ("Keeep will now help you decrypt a string of data.  ");
+    writeText ("Please enter your string below, and we'll do the rest.");
+    encryptChecker: writeLine ("Enter a string: ");
+    char userEntered[255]; char a[2]; gets(a);
+    gets(userEntered);
+    if (strlen(userEntered) <= 3) {
+        throwError ("Your string must be at least 4 characters in length");
+        goto encryptChecker;
+    }
+    writeLine ("Encoded string: "); puts (decode (userEntered));
     leaveLine();
     getch();
 }
@@ -404,11 +485,12 @@ int main(void) {
 
     user A; int u;
 
-    home:   designImplement();
+    home:   //designImplement();
             writeText("1.   Log in to your Keeep");
             writeText("2.   Sign up for a new Keeep");
             writeText("3.   String encryptor (experimental)");
-            writeText("4.   Generate a random password (experimental)");
+            writeText("4.   String decryptor (experimental)");
+            writeText("5.   Generate a random password (experimental)");
             writeText("99.  Exit saving changes");
             leaveLine();
             writeLine("Enter your choice: ");
@@ -427,6 +509,9 @@ int main(void) {
             launchEncrypter();
             break;
         case 4:
+            launchDecrypter();
+            break;
+        case 5:
             launchRandomPassword();
             break;
         case 99:
